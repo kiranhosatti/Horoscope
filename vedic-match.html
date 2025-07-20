@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Vedic Horoscope 36 Guna Match</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins:400,600|Noto+Sans+Kannada:400,600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', Arial, sans-serif; background: linear-gradient(120deg,#667eea,#764ba2 85%);
+      color:#fff; margin:0; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:22px;
+    }
+    .container {background:rgba(0,0,0,.85);border-radius:18px;box-shadow:0 0 40px #27186957;padding:30px 18px;max-width:620px;width:100%;}
+    h1 {text-align:center; font-size:2em;margin-bottom:18px;}
+    h2 {text-align:center;margin-top:30px;}
+    label {font-weight:600;margin:8px 0 2px;display:block;}
+    select,input,button {
+      width:100%;padding:11px 11px;margin:6px 0 15px;
+      border-radius:7px;border:none;font-size:1.04em;
+      color:#232;font-weight:600;background:#fbfcff;
+    }
+    select:focus,input:focus{outline:none;box-shadow:0 0 8px #8f7afc81;}
+    button {background:#8f7afc;color:#fff;cursor:pointer;font-weight:700;}
+    button:hover {background:#6f63e6;}
+    .star-vertical {display:flex;flex-direction:column;align-items:center;}
+    .star-label {margin-bottom:2px;font-weight:600;}
+    .star-block {background:rgba(254,252,180,0.07);padding:6px 13px;border-radius:5px;margin-bottom:7px;font-size:1.15em;}
+    #result {margin-top:28px;background:rgba(255,255,255,0.11);border-radius:11px;padding:18px 7px 10px;color:#fafafa;font-size:1.03rem;}
+    table{width:100%;margin:15px 0 8px 0;background:rgba(255,255,255,0.10);font-size:.99em;color:#fafafa;border-collapse:collapse;}
+    table th,table td{padding:6px 4px;border-bottom:1px solid #3837a0c5;}
+    table th{background-color:#7266af;}
+    table td{text-align:center;}
+    .good { color: #74f671; font-weight: 600;}
+    .warn {color:#ffe86b;font-weight:600;}
+    .bad  { color: #ff6767; font-weight:600;}
+    .kundali { width:158px;height:158px; margin:14px auto 8px; background:rgba(255,255,255,0.12);border-radius:9px;}
+    .kundali svg{width:100%;height:100%;}
+    .location-row{color:#ffe06e;font-size:.99em;margin-bottom:3px;text-align:center;}
+    .kn-font{font-family:'Noto Sans Kannada',sans-serif;}
+    .section-title {font-size:1.08em;font-weight:700;margin-top:1.2em;margin-bottom:5px;text-align:center;}
+    @media(max-width:650px){.container{padding:8px 3vw;margin:0 0;}h1{font-size:1.28em;}.kundali,.kundali svg{width:110px;height:110px;}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="title">Vedic Horoscope 36-Guna Match</h1>
+    <select id="lang">
+      <option value="en">English</option>
+      <option value="kn">ಕನ್ನಡ</option>
+    </select>
+    <!-- Groom inputs -->
+    <label id="lbl-sign1">Groom's Rashi (Sign)</label>
+    <select id="sign1"></select>
+    <div class="star-vertical">
+      <div class="star-label" id="lbl-star1">Groom's Nakshatra</div>
+      <div id="star-display-1" class="star-block"></div>
+      <select id="groom-nakshatra"></select>
+    </div>
+    <label id="lbl-dob1">Date of Birth</label><input type="date" id="groom-dob">
+    <label id="lbl-tob1">Time of Birth</label><input type="time" id="groom-tob">
+    <label id="lbl-pob1">Place of Birth</label><input type="text" id="groom-pob" placeholder="e.g. Bengaluru, Karnataka, India">
+    <!-- Bride inputs -->
+    <label id="lbl-sign2">Bride's Rashi (Sign)</label>
+    <select id="sign2"></select>
+    <div class="star-vertical">
+      <div class="star-label" id="lbl-star2">Bride's Nakshatra</div>
+      <div id="star-display-2" class="star-block"></div>
+      <select id="bride-nakshatra"></select>
+    </div>
+    <label id="lbl-dob2">Date of Birth</label><input type="date" id="bride-dob">
+    <label id="lbl-tob2">Time of Birth</label><input type="time" id="bride-tob">
+    <label id="lbl-pob2">Place of Birth</label><input type="text" id="bride-pob" placeholder="e.g. Mysuru, Karnataka, India">
+    <button id="check-btn">Check 36 Guna Compatibility</button>
+    <div id="result"></div>
+  </div>
+<script>
+// DATA
+const NAKSHATRAS = ["ashwini","bharani","krittika","rohini","mrigashira","ardra","punarvasu","pushya","ashlesha","magha","purvaphalguni","uttaraphalguni","hasta","chitra","swati","vishakha","anuradha","jyestha","moola","purvashada","uttarashada","shravana","dhanishta","shatabhisha","purvabhadra","uttarabhadra","revati"];
+const NAK_NAMES = {
+  en: ["Ashwini","Bharani","Krittika","Rohini","Mrigashira","Ardra","Punarvasu","Pushya","Ashlesha","Magha","Purva Phalguni","Uttara Phalguni","Hasta","Chitra","Swati","Vishakha","Anuradha","Jyeshtha","Moola","Purva Ashada","Uttara Ashada","Shravana","Dhanishta","Shatabhisha","Purva Bhadra","Uttara Bhadra","Revati"],
+  kn: ["ಅಶ್ವಿನಿ","ಭರಣಿ","ಕೃತಿಕಾ","ರೋಹಿಣಿ","ಮೃಗಶಿರಾ","ಆರ್ದ್ರ","ಪುನರ್ವಸು","ಪುಷ್ಯ","ಆಶ್ಲೇಷಾ","ಮಘ","ಪೂರ್ವಫಲ್ಗುನಿ","ಉತ್ತರಫಲ್ಗುನಿ","ಹಸ್ತ","ಚಿತ್ರ","ಸ್ವಾತಿ","ವಿಶಾಖ","ಅನುರುಧ","ಜ್ಯೇಷ್ಠ","ಮೂಲ","ಪೂರ್ವಾಷಾಢ","ಉತ್ತರಾಷಾಢ","ಶ್ರಾವಣ","ಧಾನಿಷ್ಠ","ಶತಭಿಷ","ಪೂರ್ವಭಾದ್ರ","ಉತ್ತರಭಾದ್ರ","ರೇವತಿ"]
+};
+const RASHIS = ["aries","taurus","gemini","cancer","leo","virgo","libra","scorpio","sagittarius","capricorn","aquarius","pisces"];
+const RASHI_NAMES = {
+  en:["Aries (Mesha)","Taurus (Vrishabha)","Gemini (Mithuna)","Cancer (Karka)","Leo (Simha)","Virgo (Kanya)","Libra (Tula)","Scorpio (Vrishchika)","Sagittarius (Dhanu)","Capricorn (Makara)","Aquarius (Kumbha)","Pisces (Meena)"],
+  kn:["ಮೇಷ","ವೃಷಭ","ಮಿಥುನ","ಕರ್ಕ","ಸಿಂಹ","ಕನ್ಯಾ","ತುಲಾ","ವೃಶ್ಚಿಕ","ಧನು","ಮಕರ","ಕುಂಭ","ಮೀನ"]
+};
+// For demo: simple logic tables for 8 kootas with max points each
+const KOOTA_META = [
+  {name:"Varna",max:1,desc_en:"Spiritual compatibility",desc_kn:"ಆಧ್ಯಾತ್ಮಿಕ ಹೊಂದಾಣಿಕೆ"},
+  {name:"Vashya",max:2,desc_en:"Mutual control/influence",desc_kn:"ಪರಸ್ಪರ ಪ್ರಭಾವ"},
+  {name:"Tara/Dina",max:3,desc_en:"Health and longevity",desc_kn:"ಆರೋಗ್ಯ/ದೀರ್ಘಾಯು"},
+  {name:"Yoni",max:4,desc_en:"Sexual compatibility",desc_kn:"ಯೋನಿಯ ಹೊಂದಾಣಿಕೆ"},
+  {name:"Gana",max:6,desc_en:"Temperament/family harmony",desc_kn:"ಸ್ವಭಾವ ಹೊಂದಾಣಿಕೆ"},
+  {name:"Rashi/Bhakoot",max:7,desc_en:"Love/progeny/luck",desc_kn:"ಪ್ರೀತಿ/ಸಂತಾನ/ಭಾಗ್ಯ"},
+  {name:"Nadi",max:8,desc_en:"Hereditary/pranic energy",desc_kn:"ಜನ್ಮ ನಾಡಿ/ಘಟನೆ"},
+  {name:"Rajju",max:6,desc_en:"Marriage longevity",desc_kn:"ವಿವಾಹದ ದೀರ್ಘಾಯು"}
+];
+// Helpers for basic (illustrative) demo calculations:
+function calcKootaPoints(kno, nak1, nak2, sign1, sign2) {
+  // In real app: use full astrological Nakshatra, rashi and position tables!
+  if(kno==0){return nak1==nak2?0:1;} // Varna: different gets 1 (for demo)
+  if(kno==1){return (Math.abs(NAKSHATRAS.indexOf(nak1)-NAKSHATRAS.indexOf(nak2))%3==0)?2:0;}
+  if(kno==2){ // Tara (Dina): most matches if difference is a 'good' star apart
+    const good=[2,4,6,8,9,12,14,16,18,20,23,25];
+    return good.includes((NAKSHATRAS.indexOf(nak2)-NAKSHATRAS.indexOf(nak1)+27)%27)?3:1;
+  }
+  if(kno==3){ // Yoni: demo random - compatible if both in even or odd index
+    let even = (NAKSHATRAS.indexOf(nak1)%2==0)===(NAKSHATRAS.indexOf(nak2)%2==0);
+    return even?4:2;
+  }
+  if(kno==4){ // Gana: same gana 6, deva/manushya/partial 3, otherwise 1
+    function getGana(s){let i=NAKSHATRAS.indexOf(s); if(i%3==0)return 0; if(i%3==1)return 1; return 2;}
+    let g1=getGana(nak1),g2=getGana(nak2); if(g1==g2)return 6; if(Math.abs(g1-g2)==1)return 3; return 1;
+  }
+  if(kno==5){// Bhakoot: if signs compatible get full, else low
+    let s1=RASHIS.indexOf(sign1),s2=RASHIS.indexOf(sign2);
+    return (Math.abs(s1-s2)%3==0)?7:2;
+  }
+  if(kno==6){ // Nadi: same=0, otherwise 8
+    function getNadi(n){if([0,3,6,9,12,15,18,21,24].includes(NAKSHATRAS.indexOf(n)))return 0;if([1,4,7,10,13,16,19,22,25].includes(NAKSHATRAS.indexOf(n)))return 1;return 2;}
+    let n1=getNadi(nak1),n2=getNadi(nak2); return (n1==n2)?0:8;
+  }
+  if(kno==7){// Rajju: demo - compatible if same third, otherwise 6
+    return (Math.floor(NAKSHATRAS.indexOf(nak1)/9)===Math.floor(NAKSHATRAS.indexOf(nak2)/9))?6:2;
+  }
+  return 0;
+}
+function getKootaStatus(pt,max){if(pt==max)return "good";if(pt>=max/2)return "warn";return "bad";}
+function getKootaExplain(kno,pt,max,lang){
+  if(pt===max) return lang=="en"?["Excellent Match","All traditional factors satisfied."]:["ಅತ್ಯುತ್ತಮ ಹೊಂದಾಣಿಕೆ","ಎಲ್ಲಾ ಪರಂಪರಾ ಅಂಶಗಳು ಹೊಂದಿಕೊಂಡಿವೆ."];
+  if(pt>=max/2) return lang=="en"?["Moderate Match","Some harmonies, minor frictions possible."]:["ಮಧ್ಯಮ ಹೊಂದಾಣಿಕೆ","ಕೆಲವು ಹೊಂದಾಣಿಕೆ ಇದೆ, ಸಣ್ಣ ಬೇಧ."];
+  return lang=="en"?["Poor Match","Major mismatch. Consult remedy/astrologer."]:["ಕಡಿಮೆ ಹೊಂದಾಣಿಕೆ","ಪ್ರಮುಖ ಹೊಂದಾಣಿಕೆ ಇಲ್ಲ. ಪರಿಹಾರ ನೋಡಿ."];
+}
+// Populate select options
+function populateSelect(sel,arr,dispArr){sel.innerHTML='<option value="">'+(dispArr?dispArr[0]:"Select")+'</option>'+(arr.map((v,i)=>`<option value="${v}">${dispArr?dispArr[i]:v}</option>`).join(""));}
+// Init selections (EN first)
+populateSelect(document.getElementById('sign1'),RASHIS,RASHI_NAMES.en);
+populateSelect(document.getElementById('sign2'),RASHIS,RASHI_NAMES.en);
+populateSelect(document.getElementById('groom-nakshatra'),NAKSHATRAS,NAK_NAMES.en);
+populateSelect(document.getElementById('bride-nakshatra'),NAKSHATRAS,NAK_NAMES.en);
+document.getElementById('lang').onchange=function(){
+  let l=this.value,fn=l=="kn";document.body.classList.toggle('kn-font',fn);
+  document.getElementById('title').textContent=fn?"ವೈದಿಕ ಜೋಡಿಯ ೩೬ ಗುಣ ಹೊಂದಾಣಿಕೆ":"Vedic Horoscope 36-Guna Match";
+  document.getElementById('lbl-sign1').textContent=fn?"ವರನ ರಾಶಿ":"Groom's Rashi (Sign)";
+  document.getElementById('lbl-star1').textContent=fn?"ವರನ ನಕ್ಷತ್ರ":"Groom's Nakshatra";
+  document.getElementById('lbl-dob1').textContent=fn?"ಜನ್ಮ ದಿನಾಂಕ":"Date of Birth";
+  document.getElementById('lbl-tob1').textContent=fn?"ಜನ್ಮ ಸಮಯ":"Time of Birth";
+  document.getElementById('lbl-pob1').textContent=fn?"ಜನ್ಮ ಸ್ಥಳ":"Place of Birth";
+  document.getElementById('lbl-sign2').textContent=fn?"ವಧುವಿನ ರಾಶಿ":"Bride's Rashi (Sign)";
+  document.getElementById('lbl-star2').textContent=fn?"ವಧುವಿನ ನಕ್ಷತ್ರ":"Bride's Nakshatra";
+  document.getElementById('lbl-dob2').textContent=fn?"ಜನ್ಮ ದಿನಾಂಕ":"Date of Birth";
+  document.getElementById('lbl-tob2').textContent=fn?"ಜನ್ಮ ಸಮಯ":"Time of Birth";
+  document.getElementById('lbl-pob2').textContent=fn?"ಜನ್ಮ ಸ್ಥಳ":"Place of Birth";
+  document.getElementById('check-btn').textContent=fn?"೩೬ ಗುಣ ಹೊಂದಾಣಿಕೆಯನ್ನು ಪರಿಶೀಲಿಸಿ":"Check 36 Guna Compatibility";
+  populateSelect(document.getElementById('sign1'),RASHIS,RASHI_NAMES[l]);
+  populateSelect(document.getElementById('sign2'),RASHIS,RASHI_NAMES[l]);
+  populateSelect(document.getElementById('groom-nakshatra'),NAKSHATRAS,NAK_NAMES[l]);
+  populateSelect(document.getElementById('bride-nakshatra'),NAKSHATRAS,NAK_NAMES[l]);
+}
+// Show vertical selected star
+document.getElementById('groom-nakshatra').onchange=function(){
+  let idx=this.selectedIndex-1,l=document.getElementById('lang').value;
+  document.getElementById('star-display-1').textContent=idx>=0?NAK_NAMES[l][idx]:"";
+}
+document.getElementById('bride-nakshatra').onchange=function(){
+  let idx=this.selectedIndex-1,l=document.getElementById('lang').value;
+  document.getElementById('star-display-2').textContent=idx>=0?NAK_NAMES[l][idx]:"";
+}
+// Main Calculation
+document.getElementById('check-btn').onclick=function(){
+  let l=document.getElementById('lang').value,fn=l=="kn";
+  let s1=document.getElementById('sign1').value, s2=document.getElementById('sign2').value,
+    n1=document.getElementById('groom-nakshatra').value, n2=document.getElementById('bride-nakshatra').value,
+    d1=document.getElementById('groom-dob').value, t1=document.getElementById('groom-tob').value, p1=document.getElementById('groom-pob').value,
+    d2=document.getElementById('bride-dob').value, t2=document.getElementById('bride-tob').value, p2=document.getElementById('bride-pob').value;
+  if(!s1||!n1||!d1||!t1||!p1||!s2||!n2||!d2||!t2||!p2){
+    document.getElementById('result').innerHTML='<span style="color:#ffd600">'+(fn?"ದಯವಿಟ್ಟು ಎಲ್ಲಾ ವಿವರಗಳನ್ನು ಭರ್ತಿ ಮಾಡಿ.":"Please fill all fields.")+'</span>';return;
+  }
+  let tot=0,rows="";
+  for(let i=0;i<8;i++){
+    let pts=calcKootaPoints(i,n1,n2,s1,s2),meta=KOOTA_META[i];
+    tot+=pts;
+    let expl=getKootaExplain(i,pts,meta.max,l),
+      status=pts==meta.max?(fn?"ಅತ್ಯುತ್ತಮ":"Excellent"):
+      pts>=meta.max/2?(fn?"ಮಧ್ಯಮ":"Moderate"):(fn?"ಕಡಿಮೆ":"Poor");
+    rows+=`<tr>
+      <td>${fn?meta.name.replace(/a$/,"ಾ"):meta.name}</td>
+      <td>${pts}/${meta.max}</td>
+      <td class="${getKootaStatus(pts,meta.max)}">${status}</td>
+      <td>${fn?meta["desc_kn"]:meta["desc_en"]}<br><small>${expl[1]}</small></td>
+    </tr>`;
+  }
+  let totstars=tot>=32?5:tot>=28?4:tot>=22?3:tot>=16?2:1;
+  // Mangal Dosha
+  function mangalDemo(sign){return["aries","leo","scorpio","capricorn"].includes(sign);}
+  let mg1=mangalDemo(s1),mg2=mangalDemo(s2);
+  // Kundali diagram demo
+  function kundaliSVG(s,rashis,nak,time,loc){
+    let idx=rashis.indexOf(s),order=[];for(let i=0;i<12;i++)order.push(rashis[(idx+i)%12]);
+    return `<div class="kundali"><svg viewBox="0 0 100 100">
+      <rect x="8" y="8" width="84" height="84" rx="10" fill="none" stroke="#fff" stroke-width="1.7"/>
+      <line x1="8" y1="8" x2="92" y2="92" stroke="#bbb" stroke-width="1"/>
+      <line x1="8" y1="92" x2="92" y2="8" stroke="#bbb" stroke-width="1"/>
+      <line x1="50" y1="8" x2="50" y2="92" stroke="#ccc" stroke-width="0.7"/>
+      <line x1="8" y1="50" x2="92" y2="50" stroke="#ccc" stroke-width="0.7"/>
+      <text x="50" y="15" font-size="7.3" text-anchor="middle" fill="#ffe17f" font-weight="bold">1: ${order[0].charAt(0).toUpperCase()+order[0].slice(1)}</text>
+      <text x="50" y="65" font-size="9.7" fill="#ffe06e" text-anchor="middle" font-weight="bold">${nak}</text>
+      <text x="50" y="98" font-size="7" text-anchor="middle" fill="#d1d1d1">${time||""}</text>
+      </svg></div>`;
+  }
+  // Show
+  let locRow1=`<div class="location-row"><b>${fn?"ವನ ಸ್ಥಳ":'Groom Location'}:</b> ${p1}</div>`,locRow2=`<div class="location-row"><b>${fn?"ವಧು ಸ್ಥಳ":'Bride Location'}:</b> ${p2}</div>`;
+  document.getElementById('result').innerHTML=
+    `<div class="star-rating">` + Array.from({length:5},(_,i)=>`<span style="font-size:1.55em;${i<totstars?'color:#ffd700':'color:#fff2;'}">&#9733;</span>`).join("") + ` &nbsp; <b>${tot}/36</b>${fn?" / ೩೬":" / 36"}</div>
+    <table><tr>
+      <th>${fn?'ಗುಣ':'Guna'}</th>
+      <th>${fn?'ಅಂಕ':'Points'}</th>
+      <th>${fn?'ಸ್ಥಿತಿ':'Status'}</th>
+      <th>${fn?'ವಿವರಣೆ':'Description'}</th>
+      </tr>${rows}
+      <tr><td colspan="4"><b>${fn?"ಒಟ್ಟು":"Total"}: ${tot}/36</b></td></tr>
+    </table>
+    <div class="good"><b>${tot>=30?(fn?"ಅತ್ಯುತ್ತಮ ಸೇರಿದ ಜೋಡಿ":"Highly auspicious match"):tot>=18?(fn?"ಸರಾಸರಿ ಜೋಡಿ":"Acceptable match"):`${fn?"ಪರಿಹಾರ ಅಗತ್ಯವಿದೆ":"Remedies required"}`}</b></div>
+    <div>${fn?"ಮಂಗಳ ದೋಷ":"Mangal Dosha"}: 
+        ${(mg1||mg2)?('<span class="bad">'+(fn?"ಅಾರಂಭ೯ಣೆ ಇದೆ":"Present")+'</span>'):('<span class="good">'+(fn?"ಇಲ್ಲ":"None")+'</span>')}</div>
+    ${locRow1}
+    <div class="section-title">${fn?"ವರನ ಕುಂಡಲಿ":'Groom Kundali'} </div>
+    ${kundaliSVG(s1,RASHIS,n1.toUpperCase(),d1,p1)}
+    ${locRow2}
+    <div class="section-title">${fn?"ವಧುವಿನ ಕುಂಡಲಿ":'Bride Kundali'} </div>
+    ${kundaliSVG(s2,RASHIS,n2.toUpperCase(),d2,p2)}`;
+}
+</script>
+</body>
+</html>
